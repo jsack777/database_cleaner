@@ -6,7 +6,7 @@ module DatabaseCleaner
   module ActiveRecord
 
     def self.available_strategies
-      %w[truncation transaction deletion]
+      %w[savepoint truncation transaction deletion]
     end
 
     def self.config_file_location=(path)
