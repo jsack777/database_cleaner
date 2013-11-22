@@ -21,3 +21,5 @@ Feature: database cleaning
     | MongoMapper  | truncation    |
     | Mongoid      | truncation    |
     | CouchPotato  | truncation    |
+    | Redis        | truncation  |
+    | Ohm          | truncation  |

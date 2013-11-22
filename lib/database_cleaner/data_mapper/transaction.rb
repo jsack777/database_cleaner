@@ -1,11 +1,12 @@
 require 'database_cleaner/data_mapper/base'
+require 'database_cleaner/generic/transaction'
 
 module DatabaseCleaner::DataMapper
   class Transaction
     include ::DatabaseCleaner::DataMapper::Base
-    #TODO Figure out repositories, may have to refactor connection_klass to something more sensible
-    def start(repository = nil)
-      repository = self.db if repository.nil?
+    include ::DatabaseCleaner::Generic::Transaction
+
+    def start(repository = self.db)
       ::DataMapper.repository(repository) do |r|
         transaction = DataMapper::Transaction.new(r)
         transaction.begin
@@ -13,8 +14,7 @@ module DatabaseCleaner::DataMapper
       end
     end
 
-    def clean(repository = nil)
-      repository = self.db if repository.nil?
+    def clean(repository = self.db)
       ::DataMapper.repository(repository) do |r|
         adapter = r.adapter
         while adapter.current_transaction

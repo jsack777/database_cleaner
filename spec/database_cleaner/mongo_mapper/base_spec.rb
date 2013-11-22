@@ -1,6 +1,6 @@
 require 'spec_helper'
 require 'database_cleaner/mongo_mapper/base'
-require 'database_cleaner/shared_strategy_spec'
+require 'database_cleaner/shared_strategy'
 
 module DatabaseCleaner
   describe MongoMapper do
@@ -21,11 +21,11 @@ module DatabaseCleaner
 
         it "should store my desired db" do
           subject.db = :my_db
-          subject.db.should == :my_db
+          subject.db.should eq :my_db
         end
 
         it "should default to :default" do
-          subject.db.should == :default
+          subject.db.should eq :default
         end
       end
     end

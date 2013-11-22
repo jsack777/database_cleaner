@@ -14,30 +14,21 @@ begin
     s.description = "Strategies for cleaning databases.  Can be used to ensure a clean state for testing."
     s.files = FileList["[A-Z]*.*", "{examples,lib,features,spec}/**/*", "Rakefile", "cucumber.yml"]
     s.authors = ["Ben Mabey"]
+    s.licence  = 'MIT'
   end
 rescue LoadError
   puts "Jeweler not available. Install it with: sudo gem install technicalpickles-jeweler -s http://gems.github.com"
 end
 
-require 'rake/rdoctask'
-Rake::RDocTask.new do |rdoc|
-  rdoc.rdoc_dir = 'rdoc'
-  rdoc.title = 'database_cleaner'
-  rdoc.options << '--line-numbers' << '--inline-source'
-  rdoc.rdoc_files.include('README*')
-  rdoc.rdoc_files.include('lib/**/*.rb')
+require 'rspec/core'
+require 'rspec/core/rake_task'
+RSpec::Core::RakeTask.new(:spec) do |spec|
+  spec.pattern = FileList['spec/**/*_spec.rb']
 end
 
-require 'spec/rake/spectask'
-Spec::Rake::SpecTask.new(:spec) do |t|
-  t.libs << 'lib' << 'spec'
-  t.spec_files = FileList['spec/**/*_spec.rb']
-end
-
-Spec::Rake::SpecTask.new(:rcov) do |t|
-  t.libs << 'lib' << 'spec'
-  t.spec_files = FileList['spec/**/*_spec.rb']
-  t.rcov = true
+RSpec::Core::RakeTask.new(:rcov) do |spec|
+  spec.pattern = 'spec/**/*_spec.rb'
+  spec.rcov = true
 end
 
 begin

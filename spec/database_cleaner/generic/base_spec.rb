@@ -1,5 +1,5 @@
 require 'spec_helper'
-require 'database_cleaner/shared_strategy_spec'
+require 'database_cleaner/shared_strategy'
 require 'database_cleaner/generic/base'
 
 module ::DatabaseCleaner
@@ -16,7 +16,7 @@ module ::DatabaseCleaner
 
       it_should_behave_like "a generic strategy"
 
-      its(:db) { should == :default }
+      its(:db) { should eq :default }
     end
   end
 end

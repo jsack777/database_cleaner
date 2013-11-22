@@ -53,6 +53,9 @@ module DataMapper
 
       def truncate_table(table_name)
         execute("DELETE FROM #{quote_name(table_name)};")
+        if uses_sequence?
+          execute("DELETE FROM sqlite_sequence where name = '#{table_name}';")
+        end
       end
 
       # this is a no-op copied from activerecord
@@ -60,6 +63,16 @@ module DataMapper
       # activerecord also doesn't do more here
       def disable_referential_integrity
         yield
+      end
+
+      private
+
+      def uses_sequence?
+        sql = <<-SQL
+          SELECT name FROM sqlite_master
+          WHERE type='table' AND name='sqlite_sequence'
+        SQL
+        select(sql).first
       end
 
     end
@@ -79,6 +92,9 @@ module DataMapper
 
       def truncate_table(table_name)
         execute("DELETE FROM #{quote_name(table_name)};")
+        if uses_sequence?
+          execute("DELETE FROM sqlite_sequence where name = '#{table_name}';")
+        end
       end
 
       # this is a no-op copied from activerecord
@@ -86,6 +102,16 @@ module DataMapper
       # activerecord also doesn't do more here
       def disable_referential_integrity
         yield
+      end
+
+      private
+
+      def uses_sequence?
+        sql = <<-SQL
+          SELECT name FROM sqlite_master
+          WHERE type='table' AND name='sqlite_sequence'
+        SQL
+        select(sql).first
       end
 
     end
@@ -107,7 +133,7 @@ module DataMapper
       end
 
       def truncate_table(table_name)
-        execute("TRUNCATE TABLE #{quote_name(table_name)} CASCADE;")
+        execute("TRUNCATE TABLE #{quote_name(table_name)} RESTART IDENTITY CASCADE;")
       end
 
       # FIXME
@@ -148,8 +174,7 @@ module DatabaseCleaner
       include ::DatabaseCleaner::DataMapper::Base
       include ::DatabaseCleaner::Generic::Truncation
 
-      def clean(repository = nil)
-        repository = self.db if repository.nil?
+      def clean(repository = self.db)
         adapter = ::DataMapper.repository(repository).adapter
         adapter.disable_referential_integrity do
           tables_to_truncate(repository).each do |table_name|
@@ -160,14 +185,13 @@ module DatabaseCleaner
 
       private
 
-      def tables_to_truncate(repository = nil)
-        repository = self.db if repository.nil?
+      def tables_to_truncate(repository = self.db)
         (@only || ::DataMapper.repository(repository).adapter.storage_names(repository)) - @tables_to_exclude
       end
 
       # overwritten
-      def migration_storage_name
-        'migration_info'
+      def migration_storage_names
+        %w[migration_info]
       end
 
     end
