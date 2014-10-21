@@ -16,20 +16,24 @@ module DatabaseCleaner::ActiveRecord
       connection_class.connection.create_savepoint
 
 #debugger
-      if connection_class.connection.respond_to?(:increment_open_transactions)
-        connection_class.connection.increment_open_transactions
-      else
-        connection_class.__send__(:increment_open_transactions)
+      if connection_maintains_transaction_count?
+        if connection_class.connection.respond_to?(:increment_open_transactions)
+          connection_class.connection.increment_open_transactions
+        else
+          connection_class.__send__(:increment_open_transactions)
+        end
       end
     end
 
 
     def clean
 #debugger
-      if connection_class.connection.respond_to?(:decrement_open_transactions)
-        connection_class.connection.decrement_open_transactions
-      else
-        connection_class.__send__(:decrement_open_transactions)
+      if connection_maintains_transaction_count?
+        if connection_class.connection.respond_to?(:decrement_open_transactions)
+          connection_class.connection.decrement_open_transactions
+        else
+          connection_class.__send__(:decrement_open_transactions)
+        end
       end
 
       if connection_class.connection.open_transactions >= 0
@@ -40,6 +44,10 @@ module DatabaseCleaner::ActiveRecord
       if connection_class.connection.open_transactions == 0
         connection_class.connection.rollback_db_transaction
       end
+    end
+
+    def connection_maintains_transaction_count?
+        ActiveRecord::VERSION::MAJOR < 4
     end
   end
 end
